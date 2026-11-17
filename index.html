@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>급식 레이더 🍱 | 대전용전중학교</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  /* ===== 색상과 기본 글꼴 ===== */
+  :root {
+    --green: #8BC34A;
+    --green-dark: #558B2F;
+    --green-light: #F1F8E9;
+    --orange: #FF9800;
+    --orange-light: #FFF3E0;
+    --red: #E53935;
+    --red-light: #FFEBEE;
+    --text: #333;
+    --gray: #888;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Gowun Dodum', 'Noto Sans KR', sans-serif;
+    font-size: 18px;
+    color: var(--text);
+    background: #FAFDF6;
+  }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 0 14px 40px; }
+  h1, h2, h3, .tab, .vote, .chip, .day-title, .rank-item { font-family: 'Jua', sans-serif; font-weight: normal; }
+
+  /* ===== 상단 제목 ===== */
+  header {
+    background: var(--green);
+    color: #fff;
+    border-radius: 0 0 24px 24px;
+    padding: 22px 16px 18px;
+    text-align: center;
+    margin: 0 -14px 16px;
+  }
+  header h1 { margin: 0; font-size: 34px; }
+  header p { margin: 6px 0 0; font-size: 16px; opacity: .95; }
+
+  /* ===== 오늘 / 이번 주 탭 ===== */
+  .tabs { display: flex; gap: 10px; margin-bottom: 14px; }
+  .tab {
+    flex: 1; padding: 12px; font-size: 21px; border-radius: 999px; cursor: pointer;
+    border: 3px solid var(--orange); background: #fff; color: var(--orange);
+  }
+  .tab.on { background: var(--orange); color: #fff; }
+
+  /* ===== 알레르기 선택 ===== */
+  .allergy-box { background: #fff; border-radius: 16px; padding: 12px 14px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,.06); }
+  .allergy-box h3 { margin: 0 0 8px; font-size: 19px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    padding: 7px 13px; border-radius: 999px; font-size: 17px; cursor: pointer;
+    border: 2px solid #ddd; background: #fff; color: var(--text);
+  }
+  .chip.on { border-color: var(--red); background: var(--red-light); color: var(--red); }
+  .more-btn { background: none; border: none; color: var(--green-dark); font-size: 16px; cursor: pointer; padding: 6px 0 0; font-family: inherit; }
+
+  /* ===== 메뉴 카드 ===== */
+  .day-title { font-size: 21px; margin: 18px 4px 8px; color: var(--green-dark); }
+  .day-title .today-badge { background: var(--orange); color: #fff; font-size: 14px; padding: 2px 8px; border-radius: 999px; margin-left: 6px; vertical-align: middle; }
+  .card {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--green-light); border: 3px solid var(--green);
+    border-radius: 18px; padding: 12px; margin-bottom: 10px;
+  }
+  .card.danger { background: var(--red-light); border: 4px solid var(--red); }
+  .emoji {
+    flex: none; width: 50px; height: 50px; border-radius: 50%;
+    background: #fff; display: grid; place-items: center; font-size: 28px;
+  }
+  .info { flex: 1; min-width: 0; }
+  .name { font-size: 20px; font-weight: bold; word-break: keep-all; }
+  .allergy-line { font-size: 14px; color: var(--gray); margin-top: 3px; }
+  .warn { font-size: 16px; color: var(--red); font-weight: bold; margin-top: 3px; }
+  .votes { display: flex; flex-direction: column; gap: 6px; }
+  .vote {
+    border: 2px solid #ddd; background: #fff; border-radius: 12px;
+    padding: 4px 8px; font-size: 17px; cursor: pointer; min-width: 64px;
+  }
+  .vote:active { transform: scale(.94); }
+  .vote.mine { border-color: var(--orange); background: var(--orange-light); }
+  .empty { text-align: center; color: var(--gray); padding: 26px 10px; background: #fff; border-radius: 16px; }
+
+  /* ===== 인기 메뉴 순위 ===== */
+  .rank-box { background: var(--orange-light); border: 3px solid var(--orange); border-radius: 18px; padding: 14px 16px; margin-top: 18px; }
+  .rank-box h2 { margin: 0 0 10px; font-size: 23px; color: #E65100; text-align: center; }
+  .rank-item { display: flex; justify-content: space-between; font-size: 20px; padding: 6px 2px; border-bottom: 1px dashed #FFCC80; }
+  .rank-item:last-child { border-bottom: none; }
+
+  /* ===== 안내 문구 ===== */
+  .notice { font-size: 14px; color: var(--gray); text-align: center; margin-top: 14px; line-height: 1.5; }
+  .demo { background: #FFF8E1; border: 2px dashed var(--orange); border-radius: 12px; padding: 8px 12px; font-size: 15px; margin-bottom: 12px; text-align: center; }
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+    background: rgba(0,0,0,.8); color: #fff; padding: 10px 18px; border-radius: 999px;
+    font-size: 16px; opacity: 0; transition: opacity .3s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>급식 레이더 🍱</h1>
+    <p id="subtitle">대전용전중학교 · 중식</p>
+  </header>
+
+  <!-- 오늘 / 이번 주 탭 -->
+  <div class="tabs">
+    <button class="tab on" data-mode="today">오늘</button>
+    <button class="tab" data-mode="week">이번 주</button>
+  </div>
+
+  <!-- 알레르기 선택 -->
+  <div class="allergy-box">
+    <h3>⚠️ 내 알레르기 재료</h3>
+    <div class="chips" id="chips"></div>
+    <button class="more-btn" id="moreBtn">+ 다른 재료 더 보기</button>
+  </div>
+
+  <div id="demo"></div>
+  <div id="menu"><div class="empty">급식 메뉴를 불러오는 중이에요… 🍚</div></div>
+
+  <!-- 인기 메뉴 순위 -->
+  <div class="rank-box">
+    <h2 id="rankTitle">오늘의 인기 메뉴 🏆</h2>
+    <div id="rank"></div>
+  </div>
+
+  <p class="notice" id="notice">
+    급식 정보: 나이스 교육정보 개방 포털<br>
+    알레르기 정보는 참고용이에요. 정확한 내용은 학교 영양 선생님께 확인하세요.
+  </p>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================
+ * 1. 기본 설정
+ * ========================================= */
+// 나이스 알레르기 재료 (앞 6개는 처음부터 보이고, 나머지는 '더 보기')
+const MAIN_ALLERGIES = ['우유', '난류', '땅콩', '밀', '새우', '대두'];
+const MORE_ALLERGIES = ['메밀', '고등어', '게', '돼지고기', '복숭아', '토마토', '아황산류', '호두', '닭고기', '쇠고기', '오징어', '조개류', '잣'];
+const LABEL = { '난류': '달걀' };          // 화면에 보여 줄 이름
+const DAY_NAMES = ['월', '화', '수', '목', '금'];
+
+// 미리보기용 예시 메뉴 (서버에 연결되지 않았을 때만 사용)
+const DEMO_MENUS = [
+  [['잡곡밥', ['대두']], ['크림 수프', ['우유', '밀']], ['치킨까스', ['난류', '밀', '닭고기']], ['배추김치', []], ['요구르트', ['우유']]],
+  [['카레라이스', ['우유', '밀', '돼지고기']], ['유부된장국', ['대두']], ['새우튀김', ['새우', '밀']], ['깍두기', []], ['사과', []]],
+  [['짜장면', ['밀', '대두', '돼지고기']], ['짬뽕국', ['오징어', '조개류']], ['탕수육', ['밀', '돼지고기']], ['단무지', []], ['귤', []]],
+  [['비빔밥', ['난류', '대두', '쇠고기']], ['미역국', ['쇠고기']], ['땅콩조림', ['땅콩', '대두']], ['총각김치', []], ['우유', ['우유']]],
+  [['볶음밥', ['난류', '돼지고기']], ['어묵국', ['밀', '대두']], ['떡볶이', ['밀', '대두']], ['배추김치', []], ['바나나', []]]
+];
+
+/* =========================================
+ * 2. 상태 값 (앱이 기억하는 것들)
+ * ========================================= */
+let mode = 'today';      // 'today' 또는 'week'
+let days = [];           // [{date, label, dishes:[{name, allergies}]}]
+let votes = {};          // { "20261117|잡곡밥": {up, down} }
+let shared = false;      // true면 학교 전체 투표, false면 내 기기 투표
+let today = '';
+const myAllergies = new Set(load('myAllergies', []));
+const myVotes = load('myVotes', {});      // { "20261117|잡곡밥": "up" }
+
+/* =========================================
+ * 3. 작은 도우미 함수들
+ * ========================================= */
+// 브라우저 저장소 읽기/쓰기 (안 되는 환경에서도 앱이 멈추지 않게)
+function load(k, def) { try { return JSON.parse(localStorage.getItem(k)) ?? def; } catch (e) { return def; } }
+function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+// 한국 시간 기준 오늘 날짜
+function kstNow() { return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' })); }
+function ymd(d) { return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0'); }
+function prettyDate(s) { return Number(s.slice(4, 6)) + '/' + Number(s.slice(6, 8)); }
+
+// 이번 주 월요일 (토·일이면 다음 주 월요일)
+function getMonday(d) {
+  const dow = d.getDay(); // 0 일, 6 토
+  const diff = dow === 6 ? 2 : dow === 0 ? 1 : 1 - dow;
+  const m = new Date(d); m.setDate(d.getDate() + diff); return m;
+}
+
+// HTML 특수문자 안전하게 바꾸기
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+// 메뉴 이름에 맞는 음식 이모지 고르기
+function foodEmoji(name) {
+  const rules = [
+    [/우유|요구르트|요거트/, '🥛'], [/김치|깍두기|단무지|피클/, '🥬'],
+    [/국|탕|찌개|수프|스프/, '🍲'], [/면|국수|우동|스파게티|파스타|짜장|라면/, '🍜'],
+    [/새우/, '🍤'], [/치킨|닭|까스|커틀릿|튀김|너겟/, '🍗'], [/생선|고등어|연어|삼치|갈치|코다리/, '🐟'],
+    [/불고기|제육|고기|갈비|돈육|삼겹|스테이크|탕수육/, '🍖'],
+    [/떡볶이|떡/, '🍢'], [/빵|케이크|머핀|와플|토스트|피자/, '🍞'],
+    [/샐러드|나물|무침|겉절이/, '🥗'], [/사과|배|귤|오렌지|바나나|포도|딸기|수박|멜론|과일|키위/, '🍎'],
+    [/주스|에이드|음료/, '🧃'], [/밥|덮밥|볶음밥|비빔밥|카레|라이스/, '🍚'], [/계란|달걀|에그/, '🍳']
+  ];
+  for (const [re, e] of rules) if (re.test(name)) return e;
+  return '🍽️';
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._timer); t._timer = setTimeout(() => t.classList.remove('show'), 1600);
+}
+
+/* =========================================
+ * 4. 데이터 불러오기
+ * ========================================= */
+async function init() {
+  const now = kstNow();
+  today = ymd(now);
+  const monday = getMonday(now);
+  const dates = DAY_NAMES.map((_, i) => { const d = new Date(monday); d.setDate(monday.getDate() + i); return ymd(d); });
+
+  // 4-1. 급식 메뉴
+  try {
+    const r = await fetch(`/api/meal?from=${dates[0]}&to=${dates[4]}`);
+    const json = await r.json();
+    if (!json.ok) throw new Error(json.message);
+    days = dates.map((date, i) => ({ date, label: DAY_NAMES[i], dishes: json.days[date] || [] }));
+  } catch (e) {
+    // 서버 없이 파일만 열었을 때 → 예시 데이터로 미리보기
+    console.warn('급식 API 연결 실패, 예시 데이터 사용:', e.message);
+    days = dates.map((date, i) => ({
+      date, label: DAY_NAMES[i],
+      dishes: DEMO_MENUS[i].map(([name, allergies]) => ({ name, allergies }))
+    }));
+    document.getElementById('demo').innerHTML =
+      '<div class="demo">👀 미리보기 모드예요. 지금은 <b>예시 메뉴</b>가 보여요.<br>Vercel에 배포하면 실제 급식이 나와요.</div>';
+  }
+
+  // 4-2. 투표 수
+  try {
+    const r = await fetch(`/api/vote?dates=${dates.join(',')}`);
+    const json = await r.json();
+    shared = !!(json.ok && json.shared);
+    if (shared) votes = json.votes || {};
+  } catch (e) { shared = false; }
+  if (!shared) votes = load('localVotes', {});
+
+  document.getElementById('notice').insertAdjacentHTML('beforeend',
+    shared ? '<br>👍👎 투표는 우리 학교 모두가 함께 봐요.' : '<br>👍👎 투표는 지금 이 기기에만 저장돼요.');
+
+  render();
+}
+
+/* =========================================
+ * 5. 화면 그리기
+ * ========================================= */
+function renderChips(showMore) {
+  const list = showMore ? MAIN_ALLERGIES.concat(MORE_ALLERGIES) : MAIN_ALLERGIES.concat(MORE_ALLERGIES.filter(a => myAllergies.has(a)));
+  document.getElementById('chips').innerHTML = list.map(a =>
+    `<button class="chip ${myAllergies.has(a) ? 'on' : ''}" data-a="${a}">${myAllergies.has(a) ? '✔ ' : ''}${LABEL[a] || a}</button>`
+  ).join('');
+}
+
+function cardHTML(date, dish) {
+  const key = `${date}|${dish.name}`;
+  const v = votes[key] || { up: 0, down: 0 };
+  const hit = dish.allergies.filter(a => myAllergies.has(a));
+  const mine = myVotes[key];
+  const allergyText = dish.allergies.length ? '알레르기: ' + dish.allergies.map(a => LABEL[a] || a).join(', ') : '';
+  return `
+    <div class="card ${hit.length ? 'danger' : ''}">
+      <div class="emoji">${foodEmoji(dish.name)}</div>
+      <div class="info">
+        <div class="name">${esc(dish.name)}</div>
+        ${hit.length
+          ? `<div class="warn">⚠️ ${hit.map(a => LABEL[a] || a).join(', ')} 들어 있어요!</div>`
+          : (allergyText ? `<div class="allergy-line">${allergyText}</div>` : '')}
+      </div>
+      <div class="votes">
+        <button class="vote ${mine === 'up' ? 'mine' : ''}" data-date="${date}" data-name="${esc(dish.name)}" data-type="up">👍 ${v.up}</button>
+        <button class="vote ${mine === 'down' ? 'mine' : ''}" data-date="${date}" data-name="${esc(dish.name)}" data-type="down">👎 ${v.down}</button>
+      </div>
+    </div>`;
+}
+
+function render() {
+  const showDays = mode === 'today' ? days.filter(d => d.date === today) : days;
+  const menu = document.getElementById('menu');
+
+  // 메뉴 목록
+  if (mode === 'today' && (showDays.length === 0 || showDays[0].dishes.length === 0)) {
+    menu.innerHTML = '<div class="empty">오늘은 급식이 없어요 🍽️<br><small>‘이번 주’를 눌러 다른 날 메뉴를 확인해 보세요.</small></div>';
+  } else if (showDays.every(d => d.dishes.length === 0)) {
+    menu.innerHTML = '<div class="empty">이번 주 급식 정보가 아직 없어요 🍽️</div>';
+  } else {
+    menu.innerHTML = showDays.map(d => `
+      ${mode === 'week' ? `<div class="day-title">${d.label}요일 ${prettyDate(d.date)}${d.date === today ? '<span class="today-badge">오늘</span>' : ''}</div>` : ''}
+      ${d.dishes.length ? d.dishes.map(dish => cardHTML(d.date, dish)).join('') : '<div class="empty">급식이 없는 날이에요</div>'}
+    `).join('');
+  }
+
+  // 인기 메뉴 TOP 3
+  document.getElementById('rankTitle').textContent = mode === 'today' ? '오늘의 인기 메뉴 🏆' : '이번 주 인기 메뉴 🏆';
+  const pool = [];
+  showDays.forEach(d => d.dishes.forEach(dish => {
+    const v = votes[`${d.date}|${dish.name}`] || { up: 0 };
+    if (v.up > 0) pool.push({ name: dish.name, day: d.label, up: v.up });
+  }));
+  pool.sort((a, b) => b.up - a.up);
+  const medals = ['🥇', '🥈', '🥉'];
+  document.getElementById('rank').innerHTML = pool.length
+    ? pool.slice(0, 3).map((p, i) => `<div class="rank-item"><span>${medals[i]} ${esc(p.name)}${mode === 'week' ? ` <small>(${p.day})</small>` : ''}</span><span>👍 ${p.up}</span></div>`).join('')
+    : '<div class="empty" style="background:none;padding:8px">아직 투표가 없어요. 첫 번째로 👍를 눌러 보세요!</div>';
+}
+
+/* =========================================
+ * 6. 버튼 동작
+ * ========================================= */
+// 탭 바꾸기
+document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => {
+  mode = btn.dataset.mode;
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b === btn));
+  render();
+}));
+
+// 알레르기 고르기
+let showMore = false;
+document.getElementById('chips').addEventListener('click', e => {
+  const a = e.target.closest('.chip')?.dataset.a; if (!a) return;
+  myAllergies.has(a) ? myAllergies.delete(a) : myAllergies.add(a);
+  save('myAllergies', [...myAllergies]);
+  renderChips(showMore); render();
+});
+document.getElementById('moreBtn').addEventListener('click', () => {
+  showMore = !showMore;
+  document.getElementById('moreBtn').textContent = showMore ? '− 접기' : '+ 다른 재료 더 보기';
+  renderChips(showMore);
+});
+
+// 투표하기 (메뉴 하나에 한 번만)
+document.getElementById('menu').addEventListener('click', async e => {
+  const btn = e.target.closest('.vote'); if (!btn) return;
+  const { date, type } = btn.dataset;
+  const name = btn.dataset.name.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+  const key = `${date}|${name}`;
+  if (myVotes[key]) { toast('이미 투표한 메뉴예요 🙂'); return; }
+
+  // 화면 먼저 바꾸기
+  myVotes[key] = type; save('myVotes', myVotes);
+  votes[key] = votes[key] || { up: 0, down: 0 };
+  votes[key][type]++;
+  render();
+  toast(type === 'up' ? '맛있다에 한 표! 👍' : '아쉽다에 한 표 👎');
+
+  if (shared) {
+    try {
+      const r = await fetch('/api/vote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date, name, type }) });
+      const json = await r.json();
+      if (json.ok && json.votes) { Object.assign(votes, json.votes); render(); }
+    } catch (err) { toast('투표 저장에 실패했어요. 다시 시도해 주세요.'); }
+  } else {
+    save('localVotes', votes);
+  }
+});
+
+renderChips(false);
+init();
+</script>
+</body>
+</html>

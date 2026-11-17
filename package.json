@@ -1,0 +1,7 @@
+{
+  "name": "meal-radar",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "급식 레이더 - 대전용전중학교 급식 메뉴와 알레르기 확인 웹앱"
+}
